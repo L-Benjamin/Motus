@@ -1,41 +1,71 @@
 <!DOCTYPE html>
 <html lang="fr">
     <head>
-        <title>Benjamin's motus</title>
-
+        <title>Benjamin's Motus</title>
         <meta charset=utf-8 />
         <meta name=description content="Une recréation du jeu télévisé Motus.">
         <meta name=viewport content="width=device-width, initial-scale=1"/>
+
+        <style>
+            .box {
+                border-style: dashed;
+                margin: 3em;
+                padding: 1em;
+            }
+        </style>
     </head>
     <body>
-        <h1>Mes essais:</h1>
-        <div>
-            <h2 id="0"></h2>
-            <h2 id="1"></h2>
-            <h2 id="2"></h2>
-            <h2 id="3"></h2>
-            <h2 id="4"></h2>
-            <h2 id="5"></h2>
+        <div class=box>
+            <h1>Mes essais:</h1>
+            <div>
+                <h2 id="0"></h2>
+                <h2 id="1"></h2>
+                <h2 id="2"></h2>
+                <h2 id="3"></h2>
+                <h2 id="4"></h2>
+                <h2 id="5"></h2>
+            </div>
+            <input type="text" id="send" size="10">
+            <button onclick="send()">envoyer</button>
+            <h2 id="subtext"></h2>
         </div>
-        <input type="text" id="send" size="10">
-        <h2 id="error"></h2>
-        <button onclick="send()">envoyer</button>
+
+        <div class=box>
+            <h1>À propos de <i>Benjamin's Motus</i></h1>
+            <h2>Règles</h2>
+            <p>
+                Les règles sont simples : vous disposez de 6 essais pour trouver le mot mystère, dont il vous est
+                donné la première lettre. <br>
+                Vous devez entrer une tentative de la même taille que celle du mot cherché dans la zone de texte prévu à cet 
+                effet. Cliquez sur le bouton «envoyer» pour que le serveur traite votre tentative.<br>
+                Si votre tentative est de la bonne taille et valide, une nouvelle ligne sera créée. Les lettres en majuscules
+                correspondent au lettre correctes et bien placées du mot mystère que vous avez déjà trouvé. Les lettres en
+                minuscules correspondent à des lettres correctes du mot mystère mais qui sont mal placée.<br>
+                Lorsque vous avez trouvé le mot mystère, vous aurez gagné. Si vous epuisez tous vos essais, vous perdez ! Dans les
+                deux cas, vous pouvez simplement rafraichir la page pour recommencer une partie.
+            </p>
+            <h2>Code et Crédits</h2>
+            <p>
+                Le code original fût produit en 2h30 montre en main. Il est disponible <a href="https://github.com/L-Benjamin/Motus">ici</a> sous la license GPLv3.<br>
+                Copyleft🄯 2022 Benjamin Lefebre.
+            </p>
+        </div>
 
         <script>
-            function make_request(url) {
+            function makeRequest(url) {
                 let req = new XMLHttpRequest();
                 req.open("GET", url, false);
                 req.send(null);
                 return JSON.parse(req.responseText);
             }
 
-            function set_word(i, word) {
+            function setWord(i, word) {
                 let word_elem = document.getElementById(i.toString());
                 word_elem.innerHTML = word.join(" ");
             }
 
-            function set_subtext(text) {
-                let error_elem = document.getElementById("error");
+            function setSubtext(text) {
+                let error_elem = document.getElementById("subtext");
                 error_elem.innerHTML = text;
             }
 
@@ -44,20 +74,20 @@
             }
             
             function send() {
-                set_subtext("");
+                setSubtext("");
 
                 let wordTry = document.getElementById("send").value;
-                let res = make_request(`/?id=${ID}&word=${wordTry}`);
+                let res = makeRequest(`/?id=${ID}&word=${wordTry}`);
                 
                 if (res.error) {
-                    return set_subtext(res.error);
+                    return setSubtext(res.error);
                 }
 
                 wordTry = wordTry.split("");
 
                 if (res.win) {
-                    set_word(ntry, wordTry);
-                    set_subtext(res.win);
+                    setWord(ntry, wordTry);
+                    setSubtext(res.win);
                     return end();
                 }
 
@@ -75,26 +105,26 @@
                     wordTry[i] = c;
                 }
 
-                set_word(ntry++, wordTry);
+                setWord(ntry++, wordTry);
 
                 if (ntry == NTRY) {
-                    set_subtext("Perdu !");
+                    setSubtext("Perdu ! Aucun essai restant.");
                     return end();
                 }
 
-                set_word(ntry, word);
+                setWord(ntry, word);
             }
 
             const ID = Math.floor(Math.random() * 2**32);
             const NTRY = 6;
             
-            let res = make_request(`/?id=${ID}`);
+            let res = makeRequest(`/?id=${ID}`);
 
             let ntry = 0;
             let word = Array(res.len).fill("_");
             
             word[0] = res.firstLetter;
-            set_word(ntry, word);
+            setWord(ntry, word);
         </script>
     </body>
 </html>
