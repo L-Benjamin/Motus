@@ -24,7 +24,7 @@ async function main() {
         let wordTry = req.query.word;
 
         if (wordTry === undefined) {
-            console.log(word);
+            console.log(`New connection: ${word}`);
             res.json({len: word.length, firstLetter: word[0]});
             return;
         }
