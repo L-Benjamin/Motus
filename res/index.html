@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Benjamin's motus</title>
+
+        <meta charset=utf-8 />
+        <meta name=description content="Une recréation du jeu télévisé Motus.">
+        <meta name=viewport content="width=device-width, initial-scale=1"/>
+    </head>
+    <body>
+        <h1>Mes essais:</h1>
+        <div>
+            <h2 id="0"></h2>
+            <h2 id="1"></h2>
+            <h2 id="2"></h2>
+            <h2 id="3"></h2>
+            <h2 id="4"></h2>
+            <h2 id="5"></h2>
+        </div>
+        <input type="text" id="send" size="10">
+        <h2 id="error"></h2>
+        <button onclick="send()">envoyer</button>
+
+        <script>
+            function make_request(url) {
+                let req = new XMLHttpRequest();
+                req.open("GET", url, false);
+                req.send(null);
+                return JSON.parse(req.responseText);
+            }
+
+            function set_word(i, word) {
+                let word_elem = document.getElementById(i.toString());
+                word_elem.innerHTML = word.join(" ");
+            }
+
+            function set_subtext(text) {
+                let error_elem = document.getElementById("error");
+                error_elem.innerHTML = text;
+            }
+
+            function end() {
+                document.getElementById("send").onclick = null;
+            }
+            
+            function send() {
+                set_subtext("");
+
+                let wordTry = document.getElementById("send").value;
+                let res = make_request(`/?id=${ID}&word=${wordTry}`);
+                
+                if (res.error) {
+                    return set_subtext(res.error);
+                }
+
+                wordTry = wordTry.split("");
+
+                if (res.win) {
+                    set_word(ntry, wordTry);
+                    set_subtext(res.win);
+                    return end();
+                }
+
+                for (let i = 0; i < wordTry.length; i++) {
+                    let c;
+
+                    if (res.okLetters.includes(i)) {
+                        word[i] = c = wordTry[i].toUpperCase();
+                    } else if (res.misplaced.includes(i)) {
+                        c = wordTry[i].toLowerCase();
+                    } else {
+                        c = "_";
+                    }
+
+                    wordTry[i] = c;
+                }
+
+                set_word(ntry++, wordTry);
+
+                if (ntry == NTRY) {
+                    set_subtext("Perdu !");
+                    return end();
+                }
+
+                set_word(ntry, word);
+            }
+
+            const ID = Math.floor(Math.random() * 2**32);
+            const NTRY = 6;
+            
+            let res = make_request(`/?id=${ID}`);
+
+            let ntry = 0;
+            let word = Array(res.len).fill("_");
+            
+            word[0] = res.firstLetter;
+            set_word(ntry, word);
+        </script>
+    </body>
+</html>
