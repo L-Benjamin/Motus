@@ -23,3 +23,7 @@ npm run start
 ```
 
 This will print an url you can follow to the website.
+
+# Credits
+
+Copyleft🄯 2022 Benjamin Lefebre.
